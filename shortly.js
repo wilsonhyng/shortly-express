@@ -26,27 +26,35 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
+
+
 // we add
 app.set('trust proxy', 1);
 
 app.use(sessionCreator({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
+  secret: 'keyboard cat' //,
+  // resave: false,
+  // saveUninitialized: true,
+  // cookie: { secure: true }
 }));
 
+
+
+
 function restrict(req, res, next) {
+  // console.log('restrict function user: ', req.session.user);
   if (req.session.user) {
     next();
   } else {
     req.session.error = 'Access denied!';
+    console.log(req.session.error);
     res.redirect('/login');
   }
 }
 
 app.get('/', restrict,
 function(req, res) {
+  // console.log('session user from home: ', req.session);
   res.render('index');
 });
 
@@ -55,14 +63,16 @@ function(req, res) {
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links', restrict,
 function(req, res) {
+  // console.log('session user: ', req.session);
+
   Links.reset().fetch().then(function(links) {
     res.status(200).send(links.models);
   });
 });
 
-app.post('/links', 
+app.post('/links', restrict,
 function(req, res) {
   var uri = req.body.url;
 // console.log('LINK ADDED');
@@ -105,24 +115,22 @@ function(req, res) {
 });
 
 
-app.post('/login',
+app.post('/login', 
   function(req, res) {
     var user = req.body.username;
     var newPassword = req.body.password;
 
     new User({username: user}).fetch().then(function(found) {
-      if (!found) {
-        res.redirect('/login');
-        //check password in our db
-      } else {
+      if (found) {
         if (found.get('password') === newPassword) {
           req.session.regenerate(function() {
             req.session.user = user;
+            console.log('session user from log in', req.session.user);
             res.redirect('/');  
           });
-        } else {
-          res.redirect('/login');
         }
+      } else {
+        res.redirect('login');
       }
     });
   }
