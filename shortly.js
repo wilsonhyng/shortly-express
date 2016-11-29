@@ -109,18 +109,33 @@ function(req, res) {
 app.post('/signup', 
 function(req, res) {
   var user = req.body.username;
-  var password = req.body.password;
+  var newPassword = req.body.password;
   console.log('user: ', user);
-  console.log('passoword: ', password);
+  console.log('password: ', newPassword);
 
 
-
-
-
-  // if (!util.isValidUrl(uri)) {
+  //CHECK IF VALID USERNAME 
+  //if (!util.isValidUrl(uri)) {
   //   console.log('Not a valid url: ', uri);
   //   return res.sendStatus(404);
   // }
+  //IF VALID USERNAME
+
+  new User({username: user}).fetch().then(function(found) {
+    if (found) {
+      console.log('Choose another user name');
+      res.redirect('signup');
+    } else {
+      Users.create({
+        username: user,
+        password: newPassword
+      }).then(function() {
+        console.log('GO TO LOG IN');
+        res.redirect('login');
+      });
+    }
+  });
+
 
   // new Link({ url: uri }).fetch().then(function(found) {
   //   if (found) {
