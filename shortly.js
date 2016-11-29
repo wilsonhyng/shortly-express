@@ -3,7 +3,7 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 
-var session = require('express-session'); 
+var sessionCreator = require('express-session'); 
 
 
 
@@ -27,7 +27,9 @@ app.use(express.static(__dirname + '/public'));
 
 
 // we add
-app.use(session());
+// app.use(sessionCreator({secret: ''}));
+
+
 
 app.get('/', 
 function(req, res) {
