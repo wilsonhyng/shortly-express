@@ -3,7 +3,7 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 
-// var session = require('express-session');
+var session = require('express-session'); 
 
 
 
@@ -27,7 +27,7 @@ app.use(express.static(__dirname + '/public'));
 
 
 // we add
-// app.use(session());
+app.use(session());
 
 app.get('/', 
 function(req, res) {
@@ -49,9 +49,9 @@ function(req, res) {
 app.post('/links', 
 function(req, res) {
   var uri = req.body.url;
-console.log('LINK ADDED');
+// console.log('LINK ADDED');
   if (!util.isValidUrl(uri)) {
-    console.log('Not a valid url: ', uri);
+    // console.log('Not a valid url: ', uri);
     return res.sendStatus(404);
   }
 
@@ -91,11 +91,11 @@ function(req, res) {
 
 app.post('/login',
   function(req, res) {
-    console.log('USER NAME');
+    // console.log('USER NAME');
     var user = req.body.username;
     var password = req.body.password;
-    console.log('user: ', user);
-    console.log('passoword: ', password);
+    // console.log('user: ', user);
+    // console.log('password: ', password);
   }
 );
 
@@ -110,8 +110,8 @@ app.post('/signup',
 function(req, res) {
   var user = req.body.username;
   var newPassword = req.body.password;
-  console.log('user: ', user);
-  console.log('password: ', newPassword);
+  // console.log('user: ', user);
+  // console.log('password: ', newPassword);
 
 
   //CHECK IF VALID USERNAME 
