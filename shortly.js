@@ -3,6 +3,9 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 
+// var session = require('express-session');
+
+
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -22,6 +25,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+
+// we add
+// app.use(session());
 
 app.get('/', 
 function(req, res) {
@@ -43,7 +49,7 @@ function(req, res) {
 app.post('/links', 
 function(req, res) {
   var uri = req.body.url;
-
+console.log('LINK ADDED');
   if (!util.isValidUrl(uri)) {
     console.log('Not a valid url: ', uri);
     return res.sendStatus(404);
@@ -76,6 +82,68 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+
+app.get('/login', 
+function(req, res) {
+  res.render('login');
+});
+
+
+app.post('/login',
+  function(req, res) {
+    console.log('USER NAME');
+    var user = req.body.username;
+    var password = req.body.password;
+    console.log('user: ', user);
+    console.log('passoword: ', password);
+  }
+);
+
+app.get('/signup', 
+function(req, res) {
+  res.render('signup');
+});
+
+
+
+app.post('/signup', 
+function(req, res) {
+  var user = req.body.username;
+  var password = req.body.password;
+  console.log('user: ', user);
+  console.log('passoword: ', password);
+
+
+
+
+
+  // if (!util.isValidUrl(uri)) {
+  //   console.log('Not a valid url: ', uri);
+  //   return res.sendStatus(404);
+  // }
+
+  // new Link({ url: uri }).fetch().then(function(found) {
+  //   if (found) {
+  //     res.status(200).send(found.attributes);
+  //   } else {
+  //     util.getUrlTitle(uri, function(err, title) {
+  //       if (err) {
+  //         console.log('Error reading URL heading: ', err);
+  //         return res.sendStatus(404);
+  //       }
+
+  //       Links.create({
+  //         url: uri,
+  //         title: title,
+  //         baseUrl: req.headers.origin
+  //       })
+  //       .then(function(newLink) {
+  //         res.status(200).send(newLink);
+  //       });
+  //     });
+  //   }
+  // });
+});
 
 
 /************************************************************/
