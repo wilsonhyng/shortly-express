@@ -4,8 +4,7 @@ var partials = require('express-partials');
 var bodyParser = require('body-parser');
 
 var sessionCreator = require('express-session'); 
-
-
+var bcrypt = require('bcrypt-nodejs');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -98,6 +97,9 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+var saltRounds = 10;
+
+
 
 app.get('/login', 
 function(req, res) {
@@ -109,6 +111,11 @@ app.post('/login',
   function(req, res) {
     var user = req.body.username;
     var newPassword = req.body.password;
+
+
+
+
+
 
     new User({username: user}).fetch().then(function(found) {
       if (!found) {
@@ -148,6 +155,8 @@ app.post('/signup',
 function(req, res) {
   var user = req.body.username;
   var newPassword = req.body.password;
+  var salt = bcrypt.genSaltSync(10);
+  var hash = bcrypt.hashSync(newPassword, salt);
 
   new User({username: user}).fetch().then(function(found) {
     if (found) {
@@ -155,7 +164,7 @@ function(req, res) {
     } else {
       Users.create({
         username: user,
-        password: newPassword
+        password: hash
       }).then(function() {
         res.redirect('login');
       });
