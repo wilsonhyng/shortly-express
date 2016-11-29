@@ -26,35 +26,27 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-
-
 // we add
 app.set('trust proxy', 1);
 
 app.use(sessionCreator({
-  secret: 'keyboard cat' //,
+  secret: 'keyboard cat'//,
   // resave: false,
   // saveUninitialized: true,
   // cookie: { secure: true }
 }));
 
-
-
-
 function restrict(req, res, next) {
-  // console.log('restrict function user: ', req.session.user);
   if (req.session.user) {
     next();
   } else {
     req.session.error = 'Access denied!';
-    console.log(req.session.error);
     res.redirect('/login');
   }
 }
 
 app.get('/', restrict,
 function(req, res) {
-  // console.log('session user from home: ', req.session);
   res.render('index');
 });
 
@@ -65,8 +57,6 @@ function(req, res) {
 
 app.get('/links', restrict,
 function(req, res) {
-  // console.log('session user: ', req.session);
-
   Links.reset().fetch().then(function(links) {
     res.status(200).send(links.models);
   });
@@ -115,26 +105,37 @@ function(req, res) {
 });
 
 
-app.post('/login', 
+app.post('/login',
   function(req, res) {
     var user = req.body.username;
     var newPassword = req.body.password;
 
     new User({username: user}).fetch().then(function(found) {
-      if (found) {
+      if (!found) {
+        res.redirect('/login');
+      } else {
         if (found.get('password') === newPassword) {
           req.session.regenerate(function() {
             req.session.user = user;
-            console.log('session user from log in', req.session.user);
             res.redirect('/');  
           });
+        } else {
+          res.redirect('/login');
         }
-      } else {
-        res.redirect('login');
       }
     });
   }
 );
+
+
+app.get('/logout', 
+function(req, res) {
+  console.log('LOG ME OUT BRO');
+  req.session.destroy();
+  res.redirect('/login');
+});
+
+
 
 app.get('/signup', 
 function(req, res) {
@@ -150,14 +151,12 @@ function(req, res) {
 
   new User({username: user}).fetch().then(function(found) {
     if (found) {
-      console.log('Choose another user name');
       res.redirect('signup');
     } else {
       Users.create({
         username: user,
         password: newPassword
       }).then(function() {
-        console.log('GO TO LOG IN');
         res.redirect('login');
       });
     }
