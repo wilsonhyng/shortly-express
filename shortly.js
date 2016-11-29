@@ -114,23 +114,39 @@ app.post('/login',
 
 
 
-
-
-
     new User({username: user}).fetch().then(function(found) {
       if (!found) {
         res.redirect('/login');
       } else {
-        if (found.get('password') === newPassword) {
-          req.session.regenerate(function() {
-            req.session.user = user;
-            res.redirect('/');  
-          });
-        } else {
-          res.redirect('/login');
-        }
-      }
+        bcrypt.compare(newPassword, found.get('password'), function(err, res) {
+          if (res) {
+            req.session.regenerate(function() {
+              req.session.user = user;
+              res.redirect('/');  
+            });            
+          } else if (err) {
+            res.redirect('/login');
+          }
+        });
+      } 
     });
+
+
+
+    // new User({username: user}).fetch().then(function(found) {
+    //   if (!found) {
+    //     res.redirect('/login');
+    //   } else {
+    //     if (found.get('password') === hash) {
+    //       req.session.regenerate(function() {
+    //         req.session.user = user;
+    //         res.redirect('/');  
+    //       });
+    //     } else {
+    //       res.redirect('/login');
+    //     }
+    //   }
+    // });
   }
 );
 
