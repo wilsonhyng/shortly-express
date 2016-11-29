@@ -231,6 +231,7 @@ describe('', function() {
 
     it('Redirects to login page if a user tries to see all of the links and is not signed in', function(done) {
       request('http://127.0.0.1:4568/links', function(error, res, body) {
+        console.log("234: ", res.req.path);
         expect(res.req.path).to.equal('/login');
         done();
       });

@@ -27,16 +27,30 @@ app.use(express.static(__dirname + '/public'));
 
 
 // we add
-// app.use(sessionCreator({secret: ''}));
+app.set('trust proxy', 1);
 
+app.use(sessionCreator({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}));
 
+function restrict(req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    req.session.error = 'Access denied!';
+    res.redirect('/login');
+  }
+}
 
-app.get('/', 
+app.get('/', restrict,
 function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
+app.get('/create', restrict,
 function(req, res) {
   res.render('index');
 });
@@ -93,11 +107,24 @@ function(req, res) {
 
 app.post('/login',
   function(req, res) {
-    // console.log('USER NAME');
     var user = req.body.username;
-    var password = req.body.password;
-    // console.log('user: ', user);
-    // console.log('password: ', password);
+    var newPassword = req.body.password;
+
+    new User({username: user}).fetch().then(function(found) {
+      if (!found) {
+        res.redirect('/login');
+        //check password in our db
+      } else {
+        if (found.get('password') === newPassword) {
+          req.session.regenerate(function() {
+            req.session.user = user;
+            res.redirect('/');  
+          });
+        } else {
+          res.redirect('/login');
+        }
+      }
+    });
   }
 );
 
@@ -112,16 +139,6 @@ app.post('/signup',
 function(req, res) {
   var user = req.body.username;
   var newPassword = req.body.password;
-  // console.log('user: ', user);
-  // console.log('password: ', newPassword);
-
-
-  //CHECK IF VALID USERNAME 
-  //if (!util.isValidUrl(uri)) {
-  //   console.log('Not a valid url: ', uri);
-  //   return res.sendStatus(404);
-  // }
-  //IF VALID USERNAME
 
   new User({username: user}).fetch().then(function(found) {
     if (found) {
@@ -137,29 +154,6 @@ function(req, res) {
       });
     }
   });
-
-
-  // new Link({ url: uri }).fetch().then(function(found) {
-  //   if (found) {
-  //     res.status(200).send(found.attributes);
-  //   } else {
-  //     util.getUrlTitle(uri, function(err, title) {
-  //       if (err) {
-  //         console.log('Error reading URL heading: ', err);
-  //         return res.sendStatus(404);
-  //       }
-
-  //       Links.create({
-  //         url: uri,
-  //         title: title,
-  //         baseUrl: req.headers.origin
-  //       })
-  //       .then(function(newLink) {
-  //         res.status(200).send(newLink);
-  //       });
-  //     });
-  //   }
-  // });
 });
 
 
