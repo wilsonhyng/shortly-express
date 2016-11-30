@@ -64,9 +64,7 @@ function(req, res) {
 app.post('/links', restrict,
 function(req, res) {
   var uri = req.body.url;
-// console.log('LINK ADDED');
   if (!util.isValidUrl(uri)) {
-    // console.log('Not a valid url: ', uri);
     return res.sendStatus(404);
   }
 
@@ -97,10 +95,6 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
-var saltRounds = 10;
-
-
-
 app.get('/login', 
 function(req, res) {
   res.render('login');
@@ -112,48 +106,30 @@ app.post('/login',
     var user = req.body.username;
     var newPassword = req.body.password;
 
-
-
     new User({username: user}).fetch().then(function(found) {
       if (!found) {
         res.redirect('/login');
       } else {
-        bcrypt.compare(newPassword, found.get('password'), function(err, res) {
-          if (res) {
+        bcrypt.compare(newPassword, found.get('password'), function(err, response) {
+          if (response) {
             req.session.regenerate(function() {
               req.session.user = user;
               res.redirect('/');  
             });            
           } else if (err) {
+            console.log('error: ', err);
+          } else {
             res.redirect('/login');
           }
         });
       } 
     });
-
-
-
-    // new User({username: user}).fetch().then(function(found) {
-    //   if (!found) {
-    //     res.redirect('/login');
-    //   } else {
-    //     if (found.get('password') === hash) {
-    //       req.session.regenerate(function() {
-    //         req.session.user = user;
-    //         res.redirect('/');  
-    //       });
-    //     } else {
-    //       res.redirect('/login');
-    //     }
-    //   }
-    // });
   }
 );
 
 
 app.get('/logout', 
 function(req, res) {
-  console.log('LOG ME OUT BRO');
   req.session.destroy();
   res.redirect('/login');
 });
