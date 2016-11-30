@@ -18,6 +18,8 @@ db.knex.schema.hasTable('urls').then(function(exists) {
       link.string('title', 255);
       link.integer('visits');
       link.timestamps();
+      link.string('username');
+
     }).then(function (table) {
       console.log('Created Table', table);
     });
@@ -51,9 +53,6 @@ db.knex.schema.hasTable('users').then(function(exists) {
     });
   }
 });
-
-
-
 
 
 module.exports = db;

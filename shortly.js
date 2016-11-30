@@ -57,7 +57,10 @@ function(req, res) {
 app.get('/links', restrict,
 function(req, res) {
   Links.reset().fetch().then(function(links) {
-    res.status(200).send(links.models);
+    var filteredLinks = links.models.filter(function(link) {
+      return link.attributes.username === req.session.user;
+    });
+    res.status(200).send(filteredLinks);
   });
 });
 
@@ -77,11 +80,11 @@ function(req, res) {
           console.log('Error reading URL heading: ', err);
           return res.sendStatus(404);
         }
-
         Links.create({
           url: uri,
           title: title,
-          baseUrl: req.headers.origin
+          baseUrl: req.headers.origin,
+          username: req.session.user
         })
         .then(function(newLink) {
           res.status(200).send(newLink);
