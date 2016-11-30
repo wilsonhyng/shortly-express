@@ -35,26 +35,26 @@ app.use(sessionCreator({
   // cookie: { secure: true }
 }));
 
-function restrict(req, res, next) {
-  if (req.session.user) {
-    next();
-  } else {
-    req.session.error = 'Access denied!';
-    res.redirect('/login');
-  }
-}
+// function restrict(req, res, next) {
+//   if (req.session.user) {
+//     next();
+//   } else {
+//     req.session.error = 'Access denied!';
+//     res.redirect('/login');
+//   }
+// }
 
-app.get('/', restrict,
+app.get('/', util.restrict,
 function(req, res) {
   res.render('index');
 });
 
-app.get('/create', restrict,
+app.get('/create', util.restrict,
 function(req, res) {
   res.render('index');
 });
 
-app.get('/links', restrict,
+app.get('/links', util.restrict,
 function(req, res) {
   Links.reset().fetch().then(function(links) {
     var filteredLinks = links.models.filter(function(link) {
@@ -64,7 +64,7 @@ function(req, res) {
   });
 });
 
-app.post('/links', restrict,
+app.post('/links', util.restrict,
 function(req, res) {
   var uri = req.body.url;
   if (!util.isValidUrl(uri)) {
